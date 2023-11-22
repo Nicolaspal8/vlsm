@@ -53,14 +53,10 @@ class Program
 
     static string GetMaskFromPrefix(int prefix)
     {
-        string subnetMaskDec = "";
-        string binaryMask = new string('1', 32 - prefix) + new string('0', prefix);
-        for (int i = 0; i < 32; i += 8)
-        {
-            subnetMaskDec += Convert.ToInt32(binaryMask.Substring(i, 8), 2) + ".";
-        }
-
-        return subnetMaskDec.TrimEnd('.');
+        uint mask = ~((1u << (32 - prefix)) - 1);
+        byte[] maskBytes = BitConverter.GetBytes(mask);
+        Array.Reverse(maskBytes);  // Revertir los bytes para que estén en el orden correcto
+        return new System.Net.IPAddress(maskBytes).ToString();
     }
 
     static string Get32BitFormat(string ipAddress)
@@ -144,7 +140,7 @@ class Program
                 }
                 else
                 {
-                    Console.WriteLine("El maximo de host excede el limite para una Red de Clase A (The number of hosts exceeds the maximum limit for Class A network.)");
+                    Console.WriteLine("The number of hosts exceeds the maximum limit for a Class A network.");
                 }
             }
             else if (firstOctet >= 128 && firstOctet < 192)
@@ -155,7 +151,7 @@ class Program
                 }
                 else
                 {
-                    Console.WriteLine("El maximo de host excede el limite para una Red de Clase B  (The number of hosts exceeds the maximum limit for Class B network.)");
+                    Console.WriteLine("The number of hosts exceeds the maximum limit for a Class B network.");
                 }
             }
             else if (firstOctet >= 192 && firstOctet < 224)
@@ -166,7 +162,7 @@ class Program
                 }
                 else
                 {
-                    Console.WriteLine("El maximo de host excede el limite para una Red de Clase C (The number of hosts exceeds the maximum limit for Class C network.)");
+                    Console.WriteLine("The number of hosts exceeds the maximum limit for a Class C network.");
                 }
             }
         }
@@ -214,13 +210,13 @@ class Program
     static void Main()
     {
         // Take user inputs
-        Console.Write("Ingrese la dirección de red inicial: ");
+        Console.Write("Enter the initial network address: (xxx.xxx.xxx.xxx");
         string networkIp = Console.ReadLine();
 
-        Console.Write("Ingrese el número de hosts por red: ");
+        Console.Write("Enter the number of hosts per network: (x,x,x,x.....)");
         string endpointNumbersPerNetwork = Console.ReadLine();
 
-        Console.Write("Ingrese el prefijo de la máscara de subred (deje vacío para el valor predeterminado según la dirección de red): ");
+        Console.Write("Enter the subnet mask prefix (leave blank for the default based on the network address): ");
         string prefix = Console.ReadLine();
 
         // Check if user inputs are valid
@@ -231,18 +227,18 @@ class Program
 
             foreach (Dictionary<string, object> subnet in subnets)
             {
-                Console.WriteLine($"\nInformación de la subred (Subnet Information)");
-                Console.WriteLine($"Dirección de Red (Network Address): {subnet["Network Address"]}");
-                Console.WriteLine($"Prefijo (Prefix): {subnet["Prefix"]}");
-                Console.WriteLine($"Rango IP (IP Range): {subnet["IP Range"]}");
-                Console.WriteLine($"Dirección de Broadcast (Broadcast Address): {subnet["Broadcast Address"]}");
-                Console.WriteLine($"Máscara de Subred (Subnet Mask): {subnet["Subnet Mask"]}");
-                Console.WriteLine($"Hosts direccionables (Addressable Hosts): {subnet["Addressable Hosts"]}\n");
+                Console.WriteLine($"\nSubnet Information:");
+                Console.WriteLine($"Network Address: {subnet["Network Address"]}");
+                Console.WriteLine($"Prefix: {subnet["Prefix"]}");
+                Console.WriteLine($"IP Range: {subnet["IP Range"]}");
+                Console.WriteLine($"Broadcast Address: {subnet["Broadcast Address"]}");
+                Console.WriteLine($"Subnet Mask: {subnet["Subnet Mask"]}");
+                Console.WriteLine($"Addressable Hosts: {subnet["Addressable Hosts"]}\n");
             }
         }
         else
         {
-            Console.WriteLine("Entrada no válida.");
+            Console.WriteLine("Invalid input.");
         }
     }
 }
